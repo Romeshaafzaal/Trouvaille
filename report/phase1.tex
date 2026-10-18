@@ -1,0 +1,25 @@
+\section{Phase 1: Problem Definition}
+
+\subsection{Problem Statement}
+Online fashion shopping is time-consuming and fragmented. A shopper preparing for an event, such as a wedding, concert, presentation or office day, must search for each clothing item separately, keep a budget in mind, and guess whether the pieces will look good together. Existing platforms rely on keyword search and category filters, which work poorly for requests like ``a black outfit under Rs.\ 15,000 for a concert'', because this single sentence combines colour, budget, occasion and multiple garments.
+
+A second pain point is that most platforms ignore the individual. Recommendations are rarely adjusted for skin tone or body type, so shoppers often receive items that do not suit them, and rely on product ratings alone as a proxy for quality. Finally, no mainstream tool checks whether a complete outfit is appropriate for the type of event. The result is wasted time, over-budget purchases, returns, and low confidence in online buying.
+
+Trouvaille addresses this by letting users describe what they need in plain language and returning a complete, budget-aware, occasion-appropriate outfit built from real products.
+
+\subsection{Target Audience}
+The primary users are online shoppers in Pakistan, particularly students and young professionals, who buy clothing for specific events on a limited budget and want quick, confident styling decisions. Secondary users include shoppers who find fashion choices overwhelming, and people who are underserved by generic recommendations because of their body type or skin tone.
+
+From a research perspective, the project targets a gap between existing work: most recommender systems rank single items, whereas Trouvaille combines (i) natural-language query understanding, (ii) inclusive re-ranking by skin tone, body type and ratings, (iii) budget-constrained outfit composition, and (iv) an occasion-appropriateness check, all in one pipeline.
+
+\subsection{AI Justification}
+A traditional rule-based system is not suitable for this problem for three reasons.
+
+\paragraph{Free-form language understanding.} Users phrase requests in countless ways (``something black for a concert under 15k'', ``formal look for my cousin's wedding, size M''). Hand-written rules or regular expressions cannot cover this variety. A Large Language Model can reliably extract structured attributes such as budget, colour, occasion and size from unstructured text.
+
+\paragraph{Semantic product matching.} Keyword matching fails when a query and a product description use different words for the same idea (e.g.\ ``edgy'' or ``smart casual''). Sentence embeddings represent queries and products as vectors, so products can be retrieved by meaning rather than exact wording, and the system generalizes to products it has never seen.
+
+\paragraph{Subjective, context-dependent judgment.} Deciding whether an outfit suits a wedding versus an office, or whether items complement each other, cannot be reduced to a fixed set of if--else rules because the criteria are subjective and overlap. Learned models capture these soft relationships from data and scale as the product catalogue grows, whereas a rule base would need constant manual maintenance.
+
+Therefore, machine learning and deep learning are necessary for the language understanding, retrieval and compatibility components of Trouvaille, while deterministic logic is used only where exact constraints apply, such as enforcing the budget.
+

@@ -1,0 +1,41 @@
+\section{Phase 2: Data Acquisition \& Preprocessing}
+
+\subsection{Data Collection}
+Product data was collected from the online stores of Pakistani clothing brands (\textbf{[list brands]}) using the script \texttt{scrape\_products.py}. The script reads each store's public product feed (\texttt{/products.json}), checks the store's \texttt{robots.txt} before requesting data, waits between requests, retries failed requests, and records every step in a log file (\texttt{scrape\_log.txt}), which serves as evidence of collection. For each product we store the title, type, tags, description, price, compare-at price, available sizes and colors, stock status, image URL and product URL. In total, \textbf{[N]} raw products were collected on \textbf{[date]}.
+
+\subsection{Data Cleaning}
+The script \texttt{clean\_data.py} performs the following steps (counts are in \texttt{cleaning\_report.txt}):
+\begin{itemize}
+  \item \textbf{Duplicates:} products repeated across pages or collections were removed using brand and product handle, and then brand, title and price (\textbf{[N]} removed).
+  \item \textbf{Missing values:} products without a title or a valid price were dropped (\textbf{[N]}). Missing colors were filled by extracting the color from the title (remaining unknown colors are labeled \texttt{unknown}); missing sizes are labeled \texttt{UNKNOWN}; missing categories were inferred from the product type and title keywords, and products that could not be assigned a clothing category were dropped (\textbf{[N]}).
+  \item \textbf{Standardization:} HTML was stripped from descriptions, sizes were mapped to a common scheme (e.g.\ \texttt{XXL} to \texttt{2XL}), and colors were normalized to a fixed vocabulary.
+  \item \textbf{Scope:} children's products were removed because the application targets adult outfits (\textbf{[N]}).
+  \item \textbf{Outliers:} extreme prices were removed using the interquartile-range rule on log-price within each category (\textbf{[N]} removed), which prevents data-entry errors and luxury items from distorting the budget-based search.
+\end{itemize}
+The final cleaned dataset contains \textbf{[N]} products from \textbf{[N]} brands.
+
+\subsection{Feature Strategy}
+The script \texttt{preprocess\_features.py} prepares features for the later models.
+\begin{itemize}
+  \item \textbf{Scaling:} price is min--max scaled to $[0,1]$; log-price is standardized (z-score) because prices are strongly right-skewed; discount percentage is min--max scaled.
+  \item \textbf{Encoding:} category, gender, grouped color (top 12 colors plus \texttt{other}), brand, color undertone, fit type and formality are one-hot encoded. Occasions and sizes can take several values per product, so they are multi-hot encoded.
+  \item \textbf{Text features:} each product has a \texttt{text\_for\_embedding} field combining its title, attributes and description, to be encoded with sentence embeddings in the next phase.
+\end{itemize}
+
+\paragraph{Derived labels for later components.} The Vibe Check Engine and the inclusive filter need information that stores do not provide, so we derived heuristic labels: (i) occasion labels (wedding, office, presentation, concert, casual) and a formality level from keyword rules; (ii) a fit type (fitted, relaxed, regular) and stretch flag from keywords; (iii) a color-undertone group (warm, cool, neutral) from a color-analysis rule, with the skin undertones each group is assumed to suit; and (iv) a plus-size indicator (2XL or larger offered) as a measurable proxy for body-type inclusivity. These labels are approximations and not ground truth, and will be validated and refined in later phases. Empty columns for manually assigned skin-tone and body-type labels are reserved for that purpose. Customer ratings are not available from the store feeds and are left for a later phase.
+
+\subsection{Exploratory Data Analysis}
+\safefig{category_distribution}{Number of products per category.}
+\safefig{brand_distribution}{Number of products per brand.}
+\safefig{price_distribution}{Price distribution (log scale).}
+\safefig{price_by_category}{Price by category (log scale).}
+\safefig{color_distribution}{Most common colors.}
+\safefig{occasion_distribution}{Distribution of heuristic occasion labels.}
+\safefig{formality_distribution}{Distribution of formality levels.}
+\safefig{plus_size_by_category}{Share of products offering 2XL or larger, by category.}
+\safefig{feature_correlations}{Correlation between numeric features.}
+
+\textbf{[Write 4--6 sentences interpreting the charts: which categories dominate, class imbalance in occasions, price skew, how inclusive the size availability is, and what this means for modeling.]}
+
+\subsection{Limitations}
+Occasion, fit and undertone labels are keyword-based heuristics; ratings and skin-tone/body-type labels are not yet available; and the data covers only the selected brands at one point in time.

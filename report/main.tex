@@ -1,0 +1,25 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+% Inserts a figure from ../figures if it exists (run the pipeline first)
+\newcommand{\safefig}[2]{%
+  \IfFileExists{../figures/#1.png}{%
+    \begin{figure}[htbp]\centering
+      \includegraphics[width=0.75\linewidth]{../figures/#1.png}
+      \caption{#2}
+    \end{figure}}{%
+    \textbf{[Missing figure: #1 -- run the pipeline]}\par}}
+
+\title{Trouvaille: AI-Powered Outfit Recommendation\\Deliverable 1 -- Problem Definition \& Data Foundations}
+\author{Group Members (names and roll numbers)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{phase1}
+\input{phase2}
+
+\end{document}

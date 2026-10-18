@@ -1,0 +1,13 @@
+data/raw/
+data/processed/
+models/
+__pycache__/
+*.pyc
+.venv/
+.env
+.DS_Store
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
