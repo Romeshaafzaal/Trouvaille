@@ -1,0 +1,77 @@
+Raw rows: 40537
+Missing values per column (raw):
+product_type         838
+tags                  61
+compare_at_price    7277
+sizes               5737
+colors              9127
+image_url             64
+description         7401
+
+Duplicates removed: 3403
+Dropped (missing title/price or price <= 0): 240
+Products with unknown color after filling from title: 10223
+Dropped (no recognizable clothing category): 5688
+Dropped (kids products, out of scope): 4978
+Removed price outliers (IQR rule on log price, per category): 1261
+
+Final clean rows: 24967
+
+brand counts:
+brand
+Bonanza Satrangi    9100
+J.                  8056
+Ethnc               3025
+Lulusar             2629
+Outfitters          1176
+Lama                 456
+Vanya                263
+Hussain Rehar        255
+Faiza Saqlain          4
+Saira Shakira          3
+
+category counts:
+category
+set          12682
+top           5090
+bottom        3582
+accessory     2304
+footwear       793
+outerwear      516
+
+gender counts:
+gender
+women     14286
+men        5709
+unisex     4972
+
+formality counts:
+formality
+formal          11133
+casual           8182
+smart_casual     5652
+
+fit_type counts:
+fit_type
+regular           16725
+relaxed            4417
+not_applicable     3097
+fitted              728
+
+color_undertone counts:
+color_undertone
+neutral    9885
+unknown    6028
+cool       5025
+warm       4029
+
+occasion counts (multi-label):
+occasions
+casual          17198
+presentation    13237
+office          13218
+concert         10933
+wedding         10532
+
+Products with plus sizes (2XL+): 4468
+Saved to data/processed/products_clean.csv

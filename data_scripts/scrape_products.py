@@ -3,37 +3,56 @@ Scrapes product listings from Shopify-based Pakistani clothing stores via the pu
 /products.json endpoint. It checks each store's robots.txt first and logs everything
 (the log is your evidence of data gathering for the report).
 
-Before running: confirm https://<store>/products.json loads in your browser and read the
-store's terms of use. Edit STORES below to add/remove brands.
+Features: per-store caching (a finished store is not downloaded again, so re-runs do not
+hammer the sites), patient handling of "429 Too Many Requests", and it never overwrites
+your raw file with an empty result.
 
-Output: data/raw/products_raw.csv, data/raw/scrape_log.txt
+Usage:
+    python data_scripts/scrape_products.py             # uses cached stores, scrapes the rest
+    python data_scripts/scrape_products.py --refresh   # re-download every store
+
+Output: data/raw/products_raw.csv, data/raw/stores/<brand>.csv, data/raw/scrape_log.txt
 """
+import argparse
 import csv
 import logging
 import os
+import re
+import sys
 import time
 from datetime import datetime, timezone
 from urllib import robotparser
 
 import requests
-
-# brand -> base URL (examples only: verify each one, add/remove as needed)
+ 
 STORES = {
     "Outfitters": "https://outfitters.com.pk",
-    "Sapphire": "https://pk.sapphireonline.pk",
+    "Ethnc": "https://pk.ethnc.com",
     "Bonanza Satrangi": "https://bonanzasatrangi.com",
+    "Lama": "https://lamaretail.com",
+    "Lulusar": "https://lulusar.com",
+    "Faiza Saqlain": "https://www.faizasaqlain.pk",
+    "Hussain Rehar": "https://hussainrehar.com",
+    "Saira Shakira": "https://www.sairashakira.com",
+    "J.": "https://www.junaidjamshed.com",
+    "Vanya": "https://vanya.pk",
 }
 
 RAW_PATH = "data/raw/products_raw.csv"
+CACHE_DIR = "data/raw/stores"
 LOG_PATH = "data/raw/scrape_log.txt"
-HEADERS = {"User-Agent": "Mozilla/5.0 (university AI project; contact: romeshaafzaal72@gmail.com)"}
-DELAY_SECONDS = 1.5
-MAX_PAGES = 30
+HEADERS = {"User-Agent": "Mozilla/5.0 (university AI project; contact: your_email@example.com)"}
+DELAY_SECONDS = 2.5
+MAX_PAGES = 50         # 250 products per page
 RESPECT_ROBOTS = True
 
 FIELDS = ["brand", "product_id", "title", "handle", "product_type", "vendor", "tags",
           "price", "compare_at_price", "sizes", "colors", "available", "image_url",
           "url", "description", "created_at", "scraped_at"]
+
+
+def slug(name):
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
 
 
 def allowed_by_robots(base):
@@ -51,13 +70,23 @@ def allowed_by_robots(base):
     return ok
 
 
-def get_json(url, params, tries=3):
+def get_json(url, params, tries=4):
+    """Returns parsed JSON, or None if the request failed for good."""
     for attempt in range(tries):
         try:
-            r = requests.get(url, params=params, headers=HEADERS, timeout=20)
+            r = requests.get(url, params=params, headers=HEADERS, timeout=30)
             if r.status_code in (403, 404):
                 logging.warning("%s returned %d (not available / blocked)", url, r.status_code)
                 return None
+            if r.status_code == 429:  # rate limited: wait politely, honor Retry-After
+                try:
+                    wait = int(r.headers.get("Retry-After", 0))
+                except ValueError:
+                    wait = 0
+                wait = min(max(wait, 30 * (2 ** attempt)), 180)
+                logging.warning("429 Too Many Requests; waiting %ds (attempt %d/%d)", wait, attempt + 1, tries)
+                time.sleep(wait)
+                continue
             r.raise_for_status()
             return r.json()
         except Exception as e:
@@ -98,38 +127,79 @@ def parse_product(brand, base, p, scraped_at):
 
 
 def fetch_store(brand, base):
+    """Returns (rows, complete). complete=False if a request failed part-way."""
     if not allowed_by_robots(base):
         logging.warning("Skipping %s because robots.txt disallows it", brand)
-        return []
+        return [], False
     rows = []
     scraped_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    complete = True
     for page in range(1, MAX_PAGES + 1):
         data = get_json(f"{base}/products.json", {"limit": 250, "page": page})
-        products = (data or {}).get("products", [])
+        if data is None:
+            complete = False
+            logging.error("%s: stopped at page %d after repeated failures", brand, page)
+            break
+        products = data.get("products", [])
         if not products:
             break
         rows.extend(parse_product(brand, base, p, scraped_at) for p in products)
         logging.info("%s page %d: %d products (running total %d)", brand, page, len(products), len(rows))
         time.sleep(DELAY_SECONDS)
-    logging.info("%s finished: %d products", brand, len(rows))
-    return rows
+    else:
+        logging.warning("%s: hit MAX_PAGES (%d); catalog may be larger. Raise MAX_PAGES.", brand, MAX_PAGES)
+    logging.info("%s finished: %d products%s", brand, len(rows), "" if complete else " (INCOMPLETE)")
+    return rows, complete
+
+
+def write_csv(path, rows):
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def read_csv(path):
+    with open(path, newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
 
 
 def main():
-    os.makedirs("data/raw", exist_ok=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--refresh", action="store_true", help="re-download all stores (ignore cache)")
+    args = parser.parse_args()
+
+    os.makedirs(CACHE_DIR, exist_ok=True)
     logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger().addHandler(logging.StreamHandler())
+
     all_rows = []
     for brand, base in STORES.items():
-        all_rows.extend(fetch_store(brand, base))
-    with open(RAW_PATH, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS)
-        writer.writeheader()
-        writer.writerows(all_rows)
-    logging.info("Saved %d raw products to %s", len(all_rows), RAW_PATH)
+        base = base.strip().rstrip("/")
+        cache = os.path.join(CACHE_DIR, f"{slug(brand)}.csv")
+        if not args.refresh and os.path.exists(cache):
+            cached = read_csv(cache)
+            if cached:
+                logging.info("%s: using cached copy (%d products). Use --refresh to re-download.", brand, len(cached))
+                all_rows.extend(cached)
+                continue
+        rows, complete = fetch_store(brand, base)
+        if rows and complete:
+            write_csv(cache, rows)
+        all_rows.extend(rows)
+
     if not all_rows:
-        logging.error("No products collected. Check store URLs, /products.json access, or your internet.")
+        logging.error("No products collected, so the raw file was NOT overwritten. "
+                      "Likely rate-limited (429) or wrong URLs. Wait 30-60 minutes and re-run.")
+        sys.exit(1)
+
+    write_csv(RAW_PATH, all_rows)
+    logging.info("Saved %d raw products to %s", len(all_rows), RAW_PATH)
+    brands = {}
+    for r in all_rows:
+        brands[r["brand"]] = brands.get(r["brand"], 0) + 1
+    logging.info("Products per brand: %s", brands)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,16 @@
-data/raw/
-data/processed/
+# Large datasets: keep out of GitHub, but keep the evidence logs
+data/raw/*
+!data/raw/scrape_log.txt
+data/processed/*
+!data/processed/cleaning_report.txt
+
 models/
 __pycache__/
 *.pyc
 .venv/
 .env
 .DS_Store
+
 # LaTeX build files
 *.aux
 *.log
