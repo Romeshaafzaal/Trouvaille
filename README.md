@@ -96,6 +96,10 @@ Derived labels are heuristics, not ground truth. Ratings are not collected yet.
 - Occasion, fit, formality and undertone labels are keyword heuristics, not ground truth.
 - The data is a single snapshot taken during a sale period (66% of products carry a discount).
 
+## Model weights
+Download: (https://drive.google.com/file/d/1EW09pk8n9WU_330j14oFjEJhDgPJFmbW/view?usp=sharing)
+Place the file in `models/mlp_occasion.pt`.
+
 ## Team
 - Romesha Afzaal (24L-3001)
 - Aliza Nadeem (24L-3024)
