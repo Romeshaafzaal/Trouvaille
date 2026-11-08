@@ -120,11 +120,11 @@ def main():
         prob=[round(float(proba[i, worst_class[i]]), 3) for i in order]))
     ex.to_csv("data/processed/misclassified_examples.csv", index=False)
     short = ex.head(8).copy()
-    short["title"] = short["title"].str.slice(0, 38)
+    short["title"] = short["title"].str.slice(0, 28)
     short["brand"] = short["brand"].str.slice(0, 12)
     short = short[["title", "brand", "true", "predicted"]]
     short.columns = ["Product title", "Brand", "True labels", "Predicted"]
-    df_to_tex(short, "report/tables/errors.tex", col_format="p{4.2cm}p{2.4cm}p{3.4cm}p{3.6cm}")
+    df_to_tex(short, "report/tables/errors.tex", col_format="p{3.6cm}p{2.2cm}p{4.2cm}p{4.2cm}")
     print(f"\nTEST macro F1 {f:.3f}, AUC {overall['auc']:.3f}; {int(wrong.sum())} of {len(test)} products "
           f"have at least one wrong label")
 
