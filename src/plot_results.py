@@ -33,7 +33,8 @@ def tuning():
     plt.figure(figsize=(6.5, 4.2))
     colors = ["tab:green"] + ["tab:blue"] * (len(t) - 1)
     plt.barh(labels[::-1], t["f1"][::-1], color=colors[::-1])
-    plt.xlabel("Validation macro F1"); plt.title("Hyperparameter search (validation set)")
+    plt.xlim(0.85, 0.93)
+    plt.xlabel("Validation macro F1 (axis starts at 0.85)"); plt.title("Hyperparameter search (validation set)")
     plt.tight_layout(); plt.savefig("figures/tuning_f1.png", dpi=150); plt.close()
 
 

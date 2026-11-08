@@ -1,0 +1,59 @@
+\section{Phase 3: Model Architecture \& Implementation}
+
+\subsection{Task and Framework}
+The model implemented in this deliverable is the \textbf{occasion classifier} used by the Vibe Check Engine. Given a product's title and description, it predicts which of five occasions (wedding, office, presentation, concert, casual) the item is suitable for. A product can suit several occasions, so this is a \textbf{multi-label classification} problem. The solution is implemented in \textbf{PyTorch} (neural network), \textbf{Scikit-Learn} (baseline, splitting, metrics) and \textbf{Sentence-Transformers} (text encoder). All code is in \texttt{src/}.
+
+\subsection{Architecture}
+Each product text is first encoded by the pre-trained \texttt{all-MiniLM-L6-v2} sentence encoder into a 384-dimensional vector (the encoder is frozen; embeddings are computed once and cached). The vector is passed through a multilayer perceptron (MLP) with two hidden layers and one sigmoid output per occasion.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=0.55cm, font=\small,
+  box/.style={draw, rounded corners, minimum height=1.0cm, align=center, inner sep=4pt},
+  arr/.style={-{Stealth}, thick}]
+  \node[box, fill=gray!15] (txt) {Product\\text};
+  \node[box, fill=orange!20, right=of txt] (enc) {MiniLM\\(frozen)\\384-d};
+  \node[box, fill=blue!15, right=of enc] (l1) {Linear\\384$\to$256\\ReLU\\Dropout};
+  \node[box, fill=blue!15, right=of l1] (l2) {Linear\\256$\to$128\\ReLU\\Dropout};
+  \node[box, fill=green!20, right=of l2] (out) {Linear\\128$\to$5\\Sigmoid};
+  \node[box, fill=gray!15, right=of out] (y) {5 occasion\\probabilities};
+  \foreach \a/\b in {txt/enc, enc/l1, l1/l2, l2/out, out/y} \draw[arr] (\a) -- (\b);
+\end{tikzpicture}
+\caption{Architecture of the occasion classifier. Only the three linear layers are trained.}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+Component & Choice & Reason \\
+\midrule
+Input & 384-d MiniLM sentence embedding & Captures meaning, not just keywords; small and fast on CPU \\
+Hidden layers & 256 and 128 units, ReLU & Enough capacity for 5 labels with 17,476 training rows \\
+Regularization & Dropout & Reduces co-adaptation; rate tuned (Table~\ref{tab:tuning}) \\
+Output & 5 logits + sigmoid & Labels are not mutually exclusive, so independent probabilities are used instead of softmax \\
+Loss & \texttt{BCEWithLogitsLoss} & Standard loss for multi-label targets; numerically stable \\
+Optimizer & Adam & Adaptive step sizes; robust default for small MLPs \\
+Threshold & 0.5 on each probability & Default; per-class tuning is future work \\
+\bottomrule
+\end{tabular}
+\caption{Design decisions.}
+\end{table}
+
+\paragraph{Baseline.} To check that the neural network adds value, \texttt{baseline.py} trains a one-vs-rest \textbf{logistic regression} (\texttt{class\_weight=balanced}) on the same embeddings.
+
+\paragraph{Preventing label leakage.} The occasion labels were derived from keyword rules applied to the same product text (Phase 2). The text field \texttt{text\_for\_embedding} contained the label string itself, so \texttt{make\_text()} removes this prefix and only the title and description are given to the model. Keywords in the title can still hint at the label; this is discussed in the limitations.
+
+\subsection{Hyperparameter Tuning}
+We ran a full grid search over \textbf{learning rate} $\in\{10^{-2},10^{-3},10^{-4}\}$, \textbf{batch size} $\in\{64,256\}$ and \textbf{dropout} $\in\{0.0,0.3\}$, giving \nConfigs\ configurations, each trained for 30 epochs with the Adam optimizer and seed 42. Configurations were ranked by macro F1 on the \emph{validation} set only; the test set was not touched during tuning.
+
+\begin{table}[htbp]
+\centering
+\IfFileExists{tables/tuning.tex}{\input{tables/tuning.tex}}{\textbf{[run src/plot\_results.py]}}
+\caption{Hyperparameter search results on the validation set (best row in bold).}
+\label{tab:tuning}
+\end{table}
+
+\safefig{tuning_f1}{Validation macro F1 for each configuration; the selected one is green.}
+
+\paragraph{Final selection and justification.} The configuration with the highest validation macro F1 was selected: \textbf{learning rate \bestLR, batch size \bestBatch, dropout \bestDrop}, with validation macro F1 \bestValF\ and AUC-ROC \bestValAUC. We selected on F1 rather than accuracy because F1 balances precision and recall across the five labels, and we used the validation set so that the test set stays an unbiased final check. The results show that the \textbf{learning rate} has by far the largest effect: averaged over the other settings, $10^{-4}$ reached a validation F1 of only 0.890 because 30 epochs are too few for such small steps, while $10^{-3}$ (0.924) and $10^{-2}$ (0.921) were much better, and $10^{-3}$ scored slightly higher. A \textbf{batch size} of 64 was slightly better than 256 (0.915 versus 0.909), since smaller batches give more weight updates per epoch. \textbf{Dropout} made almost no difference (0.9117 without and 0.9115 with dropout on average), and the two best configurations differ by less than 0.001 F1. We kept dropout 0.3 because it was the top-ranked setting and, as Figure~\ref{fig:loss} shows, the network starts to overfit after about ten epochs, so a regularizer is a sensible safeguard even if its measured effect is small. Overall, the eight configurations with learning rate $10^{-3}$ or $10^{-2}$ lie within 0.006 F1 of each other, so the final result is not sensitive to the exact choice.

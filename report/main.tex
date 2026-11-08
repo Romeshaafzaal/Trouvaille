@@ -2,6 +2,9 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
 
 % Inserts a figure from ../figures if it exists (run the pipeline first)
 \newcommand{\safefig}[2]{%
@@ -10,9 +13,9 @@
       \includegraphics[width=0.75\linewidth]{../figures/#1.png}
       \caption{#2}
     \end{figure}}{%
-    \textbf{[Missing figure: #1 -- run the pipeline]}\par}}
+    \textbf{[Missing figure: \detokenize{#1} -- run the pipeline]}\par}}
 
-\title{Trouvaille: AI-Powered Outfit Recommendation\\Deliverable 1 -- Problem Definition \& Data Foundations}
+\title{Trouvaille: AI-Powered Outfit Recommendation\\Deliverable 2 -- Model Architecture \& Evaluation}
 \author{Group Members Romesha Afzaal 24L3001 Aliza Nadeem 24L-3024}
 \date{}
 
@@ -21,5 +24,19 @@
 
 \input{phase1}
 \input{phase2}
+
+% Baseline (logistic regression) validation results, printed by src/baseline.py
+\newcommand{\baseP}{0.896}\newcommand{\baseR}{0.862}\newcommand{\baseF}{0.878}\newcommand{\baseA}{0.948}
+
+% Defaults so the document compiles even before the scripts in src/ are run;
+% the generated files below overwrite them with the real values.
+\newcommand{\bestLR}{--}\newcommand{\bestBatch}{--}\newcommand{\bestDrop}{--}\newcommand{\bestValF}{--}\newcommand{\bestValAUC}{--}\newcommand{\nConfigs}{12}
+\newcommand{\testPrec}{--}\newcommand{\testRec}{--}\newcommand{\testFone}{--}\newcommand{\testAUC}{--}\newcommand{\testMicroF}{--}\newcommand{\testHamming}{--}\newcommand{\testExact}{--}\newcommand{\testN}{--}
+\IfFileExists{tables/best_params.tex}{\input{tables/best_params.tex}}{}
+\IfFileExists{tables/numbers.tex}{\input{tables/numbers.tex}}{}
+
+\input{phase3}
+\input{phase4}
+\input{contributions}
 
 \end{document}
