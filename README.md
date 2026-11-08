@@ -100,6 +100,23 @@ Derived labels are heuristics, not ground truth. Ratings are not collected yet.
 Download: (https://drive.google.com/file/d/1EW09pk8n9WU_330j14oFjEJhDgPJFmbW/view?usp=sharing)
 Place the file in `models/mlp_occasion.pt`.
 
+
+## Deliverable 2: Model and Evaluation
+Run from the repo root after the Deliverable 1 pipeline. Weights go in `models/mlp_occasion.pt` (see link above).
+
+```bash
+python src/split_data.py        # 70/15/15 stratified split
+python src/baseline.py          # embeddings + logistic regression baseline
+python src/mlp.py               # PyTorch MLP, grid search, saves models/mlp_occasion.pt
+python src/evaluate.py          # test metrics + subgroup bias check
+python src/error_analysis.py    # per-class metrics, ROC, confusion matrices
+python src/plot_results.py      # tuning and bias figures/tables
+python src/predict.py           # interactive demo
+python src/contrib_table.py     # contribution table from git history
+```
+
+Results: macro F1 0.928 and AUC-ROC 0.980 on the test set (baseline validation F1 0.878). Report: `report/Deliverable2_Report.pdf`.
+
 ## Team
 - Romesha Afzaal (24L-3001)
 - Aliza Nadeem (24L-3024)
