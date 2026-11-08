@@ -92,15 +92,18 @@ def main():
     plt.tight_layout(); plt.savefig("figures/roc_per_class.png", dpi=150); plt.close()
 
     # ---- confusion matrices ----------------------------------------------------------
-    fig, axes = plt.subplots(1, len(classes), figsize=(3 * len(classes), 3))
+    fig, axes = plt.subplots(2, 3, figsize=(9, 6))
+    axes = axes.ravel()
     for ax, c, cm in zip(axes, classes, cms):
         ax.imshow(cm, cmap="Blues")
         for (a, b), v in np.ndenumerate(cm):
-            ax.text(b, a, str(v), ha="center", va="center", fontsize=8,
+            ax.text(b, a, str(v), ha="center", va="center", fontsize=11,
                     color="white" if v > cm.max() / 2 else "black")
-        ax.set_xticks([0, 1]); ax.set_xticklabels(["pred 0", "pred 1"], fontsize=7)
-        ax.set_yticks([0, 1]); ax.set_yticklabels(["true 0", "true 1"], fontsize=7)
-        ax.set_title(c, fontsize=9)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(["pred 0", "pred 1"], fontsize=9)
+        ax.set_yticks([0, 1]); ax.set_yticklabels(["true 0", "true 1"], fontsize=9)
+        ax.set_title(c, fontsize=11)
+    for ax in axes[len(classes):]:
+        ax.axis("off")
     plt.tight_layout(); plt.savefig("figures/confusion_per_class.png", dpi=150); plt.close()
 
     # ---- most confident mistakes -----------------------------------------------------
@@ -111,8 +114,8 @@ def main():
     order = [i for i in order if wrong[i]][:20]
     ex = pd.DataFrame(dict(
         title=test["title"].values[order], brand=test["brand"].values[order],
-        true=["|".join(np.array(classes)[y[i] == 1]) for i in order],
-        predicted=["|".join(np.array(classes)[pred[i] == 1]) or "-" for i in order],
+        true=[", ".join(np.array(classes)[y[i] == 1]) for i in order],
+        predicted=[", ".join(np.array(classes)[pred[i] == 1]) or "-" for i in order],
         worst_label=[classes[worst_class[i]] for i in order],
         prob=[round(float(proba[i, worst_class[i]]), 3) for i in order]))
     ex.to_csv("data/processed/misclassified_examples.csv", index=False)
@@ -121,7 +124,7 @@ def main():
     short["brand"] = short["brand"].str.slice(0, 12)
     short = short[["title", "brand", "true", "predicted"]]
     short.columns = ["Product title", "Brand", "True labels", "Predicted"]
-    df_to_tex(short, "report/tables/errors.tex", col_format="p{4.6cm}p{2.2cm}p{3cm}p{3cm}")
+    df_to_tex(short, "report/tables/errors.tex", col_format="p{4.2cm}p{2.4cm}p{3.4cm}p{3.6cm}")
     print(f"\nTEST macro F1 {f:.3f}, AUC {overall['auc']:.3f}; {int(wrong.sum())} of {len(test)} products "
           f"have at least one wrong label")
 
