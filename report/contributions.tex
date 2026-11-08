@@ -1,0 +1,25 @@
+\section{Team Contributions \& Version Control}
+All code was committed with the Git command line. The table below is generated automatically from the repository history by \texttt{src/contrib\_table.py} and maps each commit author to the files (modules) they wrote.
+
+\begin{table}[htbp]
+\centering
+\small
+\IfFileExists{tables/contributions.tex}{\input{tables/contributions.tex}}{\textbf{[run src/contrib\_table.py]}}
+\caption{Contribution table (Git commits for Deliverable 2).}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3cm}p{10.5cm}}
+\toprule
+Member & Modules \\
+\midrule
+Romesha Afzaal & \texttt{split\_data.py} (70/15/15 split), \texttt{baseline.py} (embeddings + logistic regression), \texttt{mlp.py} (PyTorch MLP and grid search), \texttt{evaluate.py} (test metrics, subgroup bias check) \\
+Aliza Nadeem & \texttt{error\_analysis.py} (per-class metrics, ROC, confusion matrices, worst errors), \texttt{plot\_results.py} (tuning and bias figures/tables), \texttt{predict.py} (interactive inference script), \texttt{report\_utils.py}, \texttt{contrib\_table.py}, and the LaTeX report for Phases 3 and 4 \\
+\bottomrule
+\end{tabular}
+\caption{Module ownership.}
+\end{table}
+
+\paragraph{Model weights.} Trained weights (\texttt{mlp\_occasion.pt}) are hosted on Google Drive; the link is in \texttt{README.md}. Code: \url{https://github.com/Romeshaafzaal/Trouvaille}.
