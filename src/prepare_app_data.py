@@ -21,7 +21,9 @@ for i, c in enumerate(classes):
     df[f"p_{c}"] = proba[:, i].round(3)
 
 keep = ["brand", "title", "category", "gender", "color", "price", "compare_at_price",
-        "discount_pct", "available", "image_url", "url"] + [f"p_{c}" for c in classes]
+        "discount_pct", "available", "image_url", "url",
+        "sizes", "suits_skin_undertone", "fit_type", "is_stretch", "has_plus_sizes"] \
+       + [f"p_{c}" for c in classes]
 os.makedirs("app_data", exist_ok=True)
 df[keep].to_csv("app_data/products_app.csv", index=False)
 print(df[keep].shape)

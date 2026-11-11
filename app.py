@@ -1,9 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide") 
 
 @st.cache_data
 def load():
@@ -30,6 +28,10 @@ category = c5.selectbox("Type", ["any"] + sorted(df["category"].dropna().unique(
 in_stock = st.checkbox("In stock only", value=True)
 colors = sorted(c for c in df["color"].dropna().unique() if c != "unknown")
 color = st.selectbox("Outfit color", ["any"] + colors)
+size_order = ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"]
+available_sizes = {s for row in df["sizes"].dropna() for s in row.split("|")}
+size_options = [s for s in size_order if s in available_sizes]
+size = st.selectbox("Size", ["any"] + size_options)
 
 # Validation
 minBudget = parse_price(min_text)
@@ -55,6 +57,8 @@ if color != "any":
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
+if size != "any":
+    res = res[res["sizes"].fillna("").apply(lambda s: size in s.split("|"))]
 
 st.subheader(f"{len(res)} matches for {occasion} under Rs. {maxBudget:,} and above {minBudget}")
 
