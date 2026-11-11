@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")
+with open("style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 @st.cache_data
 def load():
@@ -10,7 +12,7 @@ def load():
 df = load()
 occasions = ["wedding", "office", "presentation", "concert", "casual"]
 
-st.title("👗 Trouvaille")
+st.title("Trouvaille")
 st.caption("Tell us the occasion and your budget. We'll find matching outfits from Pakistani stores.")
 
 def parse_price(text):
@@ -26,6 +28,8 @@ max_text = c3.text_input("Max budget (Rs.)", value="15000")
 gender = c4.selectbox("For", ["any", "women", "men"])
 category = c5.selectbox("Type", ["any"] + sorted(df["category"].dropna().unique()))
 in_stock = st.checkbox("In stock only", value=True)
+colors = sorted(c for c in df["color"].dropna().unique() if c != "unknown")
+color = st.selectbox("Outfit color", ["any"] + colors)
 
 # Validation
 minBudget = parse_price(min_text)
@@ -46,6 +50,8 @@ if gender != "any":
     res = res[res["gender"] == gender]
 if category != "any":
     res = res[res["category"] == category]
+if color != "any":
+    res = res[res["color"] == color]
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
