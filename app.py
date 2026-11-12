@@ -174,3 +174,17 @@ if next_col.button("+", key="next_page", disabled=page >= total_pages):
     st.session_state["page"] = page + 1
     st.session_state["scroll_top"] = True
     st.rerun()
+if st.session_state.pop("scroll_top", False):
+    components.html(f"""
+    <script>
+    // unique every run: {page}-{time.time()}
+    const doc = window.parent.document;
+    function go() {{
+        [doc.querySelector('[data-testid="stMain"]'),
+         doc.querySelector('section.main'),
+         doc.querySelector('[data-testid="stAppViewContainer"]'),
+         doc.documentElement].forEach(t => {{ if (t) t.scrollTo({{top: 0}}); }});
+    }}
+    go(); setTimeout(go, 150); setTimeout(go, 400);
+    </script>
+    """, height=0)
