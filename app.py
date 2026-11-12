@@ -52,22 +52,18 @@ size_order = ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"]
 available_sizes = {s for row in df["sizes"].dropna() for s in row.split("|")}
 size_options = [s for s in size_order if s in available_sizes]
 
-# Row 1
-c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
-occasion_text = c1.text_input("Occasion", value="office")
-min_text = c2.text_input("Min budget (Rs.)", value="0")
-max_text = c3.text_input("Max budget (Rs.)", value="15000")
+# All filters in one row
+c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(9, gap="small")
+occasion_text = c1.text_input("Occasion", value="casual")
+min_text = c2.text_input("Min (Rs.)", value="0")
+max_text = c3.text_input("Max (Rs.)", value="15000")
 gender = c4.selectbox("For", ["any", "women", "men"])
 category = c5.selectbox("Type", ["any"] + sorted(df["category"].dropna().unique()))
-color = c6.selectbox("Outfit color", ["any"] + colors)
+color = c6.selectbox(" Outfit Color", ["any"] + colors)
+size = c7.selectbox("Size", ["any"] + size_options)
+skin_tone = c8.selectbox("Undertone", ["any", "warm", "cool", "neutral"])
+body_type = c9.selectbox("Body", ["any", "Slim / fitted", "Regular", "Relaxed / loose", "Curvy / plus size"])
 
-# Row 2
-r1, r2, r3, _, _, _ = st.columns(6, gap="small")
-size = r1.selectbox("Size", ["any"] + size_options)
-skin_tone = r2.selectbox("Skin undertone", ["any", "warm", "cool", "neutral"])
-body_type = r3.selectbox("Body type", ["any", "Slim / fitted", "Regular", "Relaxed / loose", "Curvy / plus size"])
-
-# Row 3
 in_stock = st.checkbox("In stock only", value=True)
 
 # Validation

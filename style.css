@@ -66,14 +66,45 @@ header[data-testid="stHeader"] * {
     box-shadow: 1px 1px 0 var(--ink);
 }
 
-/* inputs */
+/* clean, borderless filters */
 input, [data-baseweb="select"] > div {
-    background: #fff !important;
-    border: 2px solid var(--ink) !important;
-    border-radius: 6px !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #d9cfc6 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     color: var(--ink) !important;
 }
 
+/* thin divider lines between filters */
+[data-testid="stHorizontalBlock"] {
+    border-top: 1px solid #d9cfc6;
+    border-bottom: 1px solid #d9cfc6;
+    padding: 8px 0;
+    gap: 0 !important;
+}
+[data-testid="stColumn"] {
+    border-right: 1px solid #d9cfc6;
+    padding: 0 16px;
+}
+[data-testid="stColumn"]:last-child {
+    border-right: none;
+}
+
+/* small, light labels */
+[data-testid="stWidgetLabel"] p {
+    color: #8a8078 !important;
+    font-size: 1rem !important;
+    text-transform: none;
+}
+
+/* dropdown menu */
+[data-baseweb="popover"] ul, [data-baseweb="menu"] {
+    background: var(--blush) !important;
+}
+[data-baseweb="menu"] li:hover {
+    background: #efe3df !important;
+}
 /* match bar */
 .stProgress > div > div > div > div {
     background-color: var(--rose);
@@ -90,4 +121,11 @@ input, [data-baseweb="select"] > div {
 .stButton button:hover p,
 .stButton button:hover span {
     color: var(--ink) !important;
+}
+
+/* narrower filters */
+[data-testid="stSelectbox"],
+[data-testid="stTextInput"],
+[data-testid="stNumberInput"] {
+    max-width: 130px;
 }
