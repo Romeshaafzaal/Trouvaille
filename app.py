@@ -66,23 +66,30 @@ if category != "any":
     res = res[res["category"] == category]
 if color != "any":
     res = res[res["color"] == color]
-if size != "any":
-    res = res[res["sizes"].fillna("").apply(lambda s: size in s.split("|"))]
+ 
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
-st.subheader(f"{len(res)} matches for {occasion} under Rs. {maxBudget:,} and above {minBudget}")
+st.subheader(f"{len(res)} matches for {occasion} in your budget")
 if skin_tone != "any":
     res = res[res["suits_skin_undertone"].fillna("").apply(lambda s: skin_tone in s.split("|"))]
 
-if body_type == "Slim / fitted":
-    res = res[res["fit_type"] == "fitted"]
-elif body_type == "Regular":
-    res = res[res["fit_type"] == "regular"]
-elif body_type == "Relaxed / loose":
-    res = res[res["fit_type"] == "relaxed"]
-elif body_type == "Curvy / plus size":
-    res = res[(res["has_plus_sizes"] == 1) | (res["is_stretch"] == 1)]
+clothing = ["set", "top", "bottom", "outerwear"]
+
+if size != "any":
+    has_size = res["sizes"].fillna("").apply(lambda s: size in s.split("|"))
+    res = res[~res["category"].isin(clothing) | has_size]
+
+if body_type != "any":
+    if body_type == "Slim / fitted":
+        ok = res["fit_type"] == "fitted"
+    elif body_type == "Regular":
+        ok = res["fit_type"] == "regular"
+    elif body_type == "Relaxed / loose":
+        ok = res["fit_type"] == "relaxed"
+    else:  # Curvy / plus size
+        ok = (res["has_plus_sizes"] == 1) | (res["is_stretch"] == 1)
+    res = res[~res["category"].isin(clothing) | ok]
 
 # Show top 30 as cards (3 per row)
 per_page = 30
