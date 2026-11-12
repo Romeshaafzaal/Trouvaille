@@ -23,28 +23,29 @@ def parse_price(text):
     """Return an int, or None if the text isn't a valid price."""
     text = text.replace(",", "").replace("Rs.", "").replace("Rs", "").strip()
     return int(text) if text.isdigit() else None
-
-# Inputs
-c1, c2, c3, c4, c5 = st.columns(5)
-occasion = c1.selectbox("Occasion", occasions)
-min_text = c2.text_input("Min budget (Rs.)", value="0")
-max_text = c3.text_input("Max budget (Rs.)", value="15000")
-gender = c4.selectbox("For", ["any", "women", "men"])
-category = c5.selectbox("Type", ["any"] + sorted(df["category"].dropna().unique()))
-in_stock = st.checkbox("In stock only", value=True)
+# Lists used by the dropdowns
 colors = sorted(c for c in df["color"].dropna().unique() if c != "unknown")
 size_order = ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"]
 available_sizes = {s for row in df["sizes"].dropna() for s in row.split("|")}
 size_options = [s for s in size_order if s in available_sizes]
 
+# Row 1
+c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
+occasion = c1.selectbox("Occasion", occasions)
+min_text = c2.text_input("Min budget (Rs.)", value="0")
+max_text = c3.text_input("Max budget (Rs.)", value="15000")
+gender = c4.selectbox("For", ["any", "women", "men"])
+category = c5.selectbox("Type", ["any"] + sorted(df["category"].dropna().unique()))
+color = c6.selectbox("Outfit color", ["any"] + colors)
 
-# Second row of inputs
-r1, r2, r3, r4 = st.columns(4)
-color = r1.selectbox("Outfit color", ["any"] + colors)
-size = r2.selectbox("Size", ["any"] + size_options)
-skin_tone = r3.selectbox("Skin undertone", ["any", "warm", "cool", "neutral"])
-body_type = r4.selectbox("Body type", ["any", "Slim / fitted", "Regular", "Relaxed / loose", "Curvy / plus size"])
+# Row 2
+r1, r2, r3, _, _, _ = st.columns(6, gap="small")
+size = r1.selectbox("Size", ["any"] + size_options)
+skin_tone = r2.selectbox("Skin undertone", ["any", "warm", "cool", "neutral"])
+body_type = r3.selectbox("Body type", ["any", "Slim / fitted", "Regular", "Relaxed / loose", "Curvy / plus size"])
 
+# Row 3
+in_stock = st.checkbox("In stock only", value=True)
 
 # Validation
 minBudget = parse_price(min_text)
