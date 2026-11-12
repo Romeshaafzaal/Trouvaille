@@ -138,19 +138,14 @@ for i in range(0, len(top), 3):
             st.progress(float(r[f"p_{occasion}"]), text=f"{occasion} match: {r[f'p_{occasion}']:.0%}")
             st.link_button("View in store", r["url"])
 
-# Page selector (bottom, narrow)
-_, mid, _ = st.columns([5, 1.5, 5])
-mid.number_input("Page", min_value=1, max_value=total_pages, step=1, key="page", on_change=_flag_scroll)
-mid.caption(f"Page {page} of {total_pages}")
-
-if st.session_state.pop("scroll_top", False):
-    components.html(
-        """
-        <script>
-        const doc = window.parent.document;
-        const main = doc.querySelector('[data-testid="stMain"]') || doc.querySelector('section.main');
-        if (main) main.scrollTo({top: 0, behavior: 'smooth'});
-        </script>
-        """,
-        height=0,
-    )
+# Page selector (bottom): - and + buttons only
+_, prev_col, mid, next_col, _ = st.columns([5, 1, 1.5, 1, 5])
+if prev_col.button("−", key="prev_page", disabled=page <= 1):
+    st.session_state["page"] = page - 1
+    st.session_state["scroll_top"] = True
+    st.rerun()
+mid.markdown(f"<div style='text-align:center'>Page {page} of {total_pages}</div>", unsafe_allow_html=True)
+if next_col.button("+", key="next_page", disabled=page >= total_pages):
+    st.session_state["page"] = page + 1
+    st.session_state["scroll_top"] = True
+    st.rerun()
