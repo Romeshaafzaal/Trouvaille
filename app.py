@@ -107,8 +107,15 @@ occasion, score = match_occasion(occasion_text)
 if score < 0.25:
     st.error("I couldn't understand that occasion. Try words like wedding, office, party or casual.")
     st.stop()
- 
-    
+
+TONE_SCORES = {
+    "warm":    {"mustard": 1, "rust": 1, "olive": 1, "coral": 1, "beige": .8, "navy": .4, "lavender": .3},
+    "cool":    {"navy": 1, "emerald": 1, "lavender": 1, "maroon": .9, "white": .8, "mustard": .3, "rust": .3},
+    "neutral": {},
+}
+
+def tone_score(color, tone):
+    return TONE_SCORES.get(tone, {}).get(str(color).lower(), 0.6)
 # Filter and rank
 res = df[df["price"].between(minBudget, maxBudget)]
 if gender != "any":
@@ -121,9 +128,13 @@ if color != "any":
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
- 
+
 if skin_tone != "any":
-    res = res[res["suits_skin_undertone"].fillna("").apply(lambda s: skin_tone in s.split("|"))]
+    res = res.copy()
+    res["tone"] = res["color"].apply(lambda c: tone_score(c, skin_tone))
+    res = res[res["tone"] >= 0.5]
+    res["rank"] = 0.6 * res[f"p_{occasion}"] + 0.4 * res["tone"]
+    res = res.sort_values("rank", ascending=False)
 
 clothing = ["set", "top", "bottom", "outerwear"]
 
