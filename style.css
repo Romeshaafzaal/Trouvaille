@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+:root {
+    --ink: #2D2223;
+    --rose: #B76E79;
+    --blush: #FBF3F1;
+}
+
+.stApp {
+    background-color: var(--blush);
+    color: var(--ink);
+}
+
+/* font everywhere (specific elements, so icons don't break) */
+.stApp, .stApp p, .stApp label, .stApp input, .stApp button, .stApp a,
+.stApp h1, .stApp h2, .stApp h3, .stApp li,
+[data-testid="stMarkdownContainer"], [data-baseweb="select"] {
+    font-family: 'VT323', monospace !important;
+    color: var(--ink);
+}
+
+.stApp p, .stApp label, .stApp li, [data-testid="stMarkdownContainer"] {
+    font-size: 1.25rem;
+}
+
+h1, h2, h3 {
+    font-weight: 400 !important;
+    letter-spacing: 1px;
+    color: var(--rose) !important;
+}
+h1 { font-size: 3.4rem !important; }
+
+/* top bar */
+header[data-testid="stHeader"] {
+    background-color: var(--ink);
+    border-bottom: 2px solid var(--rose);
+}
+header[data-testid="stHeader"] * {
+    color: var(--blush) !important;
+}
+
+/* product cards */
+[data-testid="stColumn"] > div > div > div[data-testid="stVerticalBlock"] {
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    box-shadow: 4px 4px 0 var(--rose);
+    padding: 10px;
+}
+
+/* buttons */
+.stLinkButton a, .stButton button {
+    background-color: var(--ink) !important;
+    color: var(--blush) !important;
+    border: 2px solid var(--ink) !important;
+    border-radius: 6px !important;
+    box-shadow: 3px 3px 0 var(--rose);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.stLinkButton a:hover, .stButton button:hover {
+    background-color: var(--rose) !important;
+    color: var(--ink) !important;
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* inputs */
+input, [data-baseweb="select"] > div {
+    background: #fff !important;
+    border: 2px solid var(--ink) !important;
+    border-radius: 6px !important;
+    color: var(--ink) !important;
+}
+
+/* match bar */
+.stProgress > div > div > div > div {
+    background-color: var(--rose);
+}
+/* make button text visible */
+.stLinkButton a p,
+.stLinkButton a span,
+.stButton button p,
+.stButton button span {
+    color: var(--blush) !important;
+}
+.stLinkButton a:hover p,
+.stLinkButton a:hover span,
+.stButton button:hover p,
+.stButton button:hover span {
+    color: var(--ink) !important;
+}
