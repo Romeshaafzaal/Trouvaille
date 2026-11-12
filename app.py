@@ -1,5 +1,9 @@
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
+
+def _flag_scroll():
+    st.session_state["scroll_top"] = True
 
 st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")  
 with open("style.css") as f:
@@ -81,7 +85,12 @@ elif body_type == "Curvy / plus size":
     res = res[(res["has_plus_sizes"] == 1) | (res["is_stretch"] == 1)]
 
 # Show top 30 as cards (3 per row)
-top = res.head(30).reset_index(drop=True)
+per_page = 30
+total_pages = max(1, -(-len(res) // per_page))  # round up
+page = min(st.session_state.get("page", 1), total_pages)
+st.session_state["page"] = page
+start = (page - 1) * per_page
+top = res.iloc[start:start + per_page].reset_index(drop=True)
 for i in range(0, len(top), 3):
     cols = st.columns(3)
     for col, (_, r) in zip(cols, top.iloc[i:i + 3].iterrows()):
@@ -96,3 +105,20 @@ for i in range(0, len(top), 3):
             st.write(price)
             st.progress(float(r[f"p_{occasion}"]), text=f"{occasion} match: {r[f'p_{occasion}']:.0%}")
             st.link_button("View in store", r["url"])
+
+# Page selector (bottom, narrow)
+_, mid, _ = st.columns([5, 1.5, 5])
+mid.number_input("Page", min_value=1, max_value=total_pages, step=1, key="page", on_change=_flag_scroll)
+mid.caption(f"Page {page} of {total_pages}")
+
+if st.session_state.pop("scroll_top", False):
+    components.html(
+        """
+        <script>
+        const doc = window.parent.document;
+        const main = doc.querySelector('[data-testid="stMain"]') || doc.querySelector('section.main');
+        if (main) main.scrollTo({top: 0, behavior: 'smooth'});
+        </script>
+        """,
+        height=0,
+    )
