@@ -116,6 +116,19 @@ TONE_SCORES = {
 
 def tone_score(color, tone):
     return TONE_SCORES.get(tone, {}).get(str(color).lower(), 0.6)
+
+FIT_SCORES = {
+    "Slim / fitted":     {"fitted": 1, "regular": .7, "relaxed": .4},
+    "Regular":           {"regular": 1, "fitted": .7, "relaxed": .7},
+    "Relaxed / loose":   {"relaxed": 1, "regular": .7, "fitted": .3},
+    "Curvy / plus size": {"relaxed": .7, "regular": .6, "fitted": .4},
+}
+
+def fit_score(r, body):
+    if body == "Curvy / plus size" and (r["has_plus_sizes"] == 1 or r["is_stretch"] == 1):
+        return 1
+    return FIT_SCORES.get(body, {}).get(r["fit_type"], 0.6)
+
 # Filter and rank
 res = df[df["price"].between(minBudget, maxBudget)]
 if gender != "any":
@@ -129,12 +142,13 @@ if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
 
+res = res.copy()
+res["rank"] = res[f"p_{occasion}"]
+
 if skin_tone != "any":
-    res = res.copy()
-    res["tone"] = res["color"].apply(lambda c: tone_score(c, skin_tone))
+    res["tone"] = res["color"].apply(lambda c: tone_score(c, skin_tone)).astype(float)
     res = res[res["tone"] >= 0.5]
-    res["rank"] = 0.6 * res[f"p_{occasion}"] + 0.4 * res["tone"]
-    res = res.sort_values("rank", ascending=False)
+    res["rank"] += 0.4 * res["tone"]
 
 clothing = ["set", "top", "bottom", "outerwear"]
 
@@ -143,15 +157,13 @@ if size != "any":
     res = res[~res["category"].isin(clothing) | has_size]
 
 if body_type != "any":
-    if body_type == "Slim / fitted":
-        ok = res["fit_type"] == "fitted"
-    elif body_type == "Regular":
-        ok = res["fit_type"] == "regular"
-    elif body_type == "Relaxed / loose":
-        ok = res["fit_type"] == "relaxed"
-    else:  # Curvy / plus size
-        ok = (res["has_plus_sizes"] == 1) | (res["is_stretch"] == 1)
-    res = res[~res["category"].isin(clothing) | ok]
+    res = res.copy()
+    res["fit"] = res.apply(lambda r: fit_score(r, body_type), axis=1).astype(float)
+    res.loc[~res["category"].isin(clothing), "fit"] = 1  # non-clothing: neutral
+    res = res[res["fit"] >= 0.5]
+    res["rank"] += 0.4 * res["fit"]
+
+res = res.sort_values("rank", ascending=False)
 
 st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
 
