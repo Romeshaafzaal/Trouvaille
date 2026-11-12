@@ -14,7 +14,30 @@ def load():
     return pd.read_csv("app_data/products_app.csv")
 
 df = load()
-occasions = ["wedding", "office", "presentation", "concert", "casual"]
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+@st.cache_resource
+def get_encoder():
+    return SentenceTransformer("all-MiniLM-L6-v2")
+
+OCCASION_DESC = {
+    "wedding": "wedding, bridal, shaadi, mehndi, walima, formal festive event",
+    "office": "office, work, professional job, business meeting",
+    "presentation": "presentation, interview, graduation, convocation, conference, formal talk, ceremony",
+    "concert": "concert, party, night out, music festival, club",
+    "casual": "casual everyday outing, hangout, daily wear, picnic",
+}
+
+@st.cache_data
+def occasion_vectors():
+    return get_encoder().encode(list(OCCASION_DESC.values()), normalize_embeddings=True)
+
+def match_occasion(text):
+    q = get_encoder().encode([text], normalize_embeddings=True)[0]
+    sims = occasion_vectors() @ q
+    i = int(np.argmax(sims))
+    return list(OCCASION_DESC)[i], float(sims[i]) 
 
 st.title("Trouvaille")
 st.caption("Tell us the occasion and your budget. We'll find matching outfits from Pakistani stores.")
@@ -31,7 +54,7 @@ size_options = [s for s in size_order if s in available_sizes]
 
 # Row 1
 c1, c2, c3, c4, c5, c6 = st.columns(6, gap="small")
-occasion = c1.selectbox("Occasion", occasions)
+occasion_text = c1.text_input("Occasion", value="office")
 min_text = c2.text_input("Min budget (Rs.)", value="0")
 max_text = c3.text_input("Max budget (Rs.)", value="15000")
 gender = c4.selectbox("For", ["any", "women", "men"])
@@ -59,6 +82,11 @@ if minBudget > maxBudget:
 if maxBudget > 500000:
     st.warning("That budget is unusually high. Please check it.")
     st.stop()
+occasion, score = match_occasion(occasion_text)
+if score < 0.25:
+    st.error("I couldn't understand that occasion. Try words like wedding, office, party or casual.")
+    st.stop()
+    
 # Filter and rank
 res = df[df["price"].between(minBudget, maxBudget)]
 if gender != "any":
@@ -71,7 +99,7 @@ if color != "any":
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
-st.subheader(f"{len(res)} matches for {occasion} in your budget")
+st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
 if skin_tone != "any":
     res = res[res["suits_skin_undertone"].fillna("").apply(lambda s: skin_tone in s.split("|"))]
 
