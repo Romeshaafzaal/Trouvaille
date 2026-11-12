@@ -42,10 +42,6 @@ df = load()
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-@st.cache_resource
-def get_encoder():
-    return SentenceTransformer("all-MiniLM-L6-v2")
-
 OCCASION_DESC = {
     "wedding": "wedding, bridal, shaadi, mehndi, walima, formal festive event",
     "office": "office, work, professional job, business meeting",
@@ -54,15 +50,19 @@ OCCASION_DESC = {
     "casual": "casual everyday outing, hangout, daily wear, picnic",
 }
 
+@st.cache_resource
+def get_encoder():
+    return SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+
 @st.cache_data
-def occasion_vectors():
-    return get_encoder().encode(list(OCCASION_DESC.values()), normalize_embeddings=True)
+def occasion_vectors(descs):
+    return get_encoder().encode(list(descs), normalize_embeddings=True)
 
 def match_occasion(text):
     q = get_encoder().encode([text], normalize_embeddings=True)[0]
-    sims = occasion_vectors() @ q
+    sims = occasion_vectors(tuple(OCCASION_DESC.values())) @ q
     i = int(np.argmax(sims))
-    return list(OCCASION_DESC)[i], float(sims[i]) 
+    return list(OCCASION_DESC)[i], float(sims[i])
 
 st.title("Trouvaille")
 st.caption("Tell us the occasion and your budget. We'll find matching outfits from Pakistani stores.")
@@ -107,6 +107,7 @@ occasion, score = match_occasion(occasion_text)
 if score < 0.25:
     st.error("I couldn't understand that occasion. Try words like wedding, office, party or casual.")
     st.stop()
+ 
     
 # Filter and rank
 res = df[df["price"].between(minBudget, maxBudget)]
@@ -120,7 +121,7 @@ if color != "any":
 if in_stock:
     res = res[res["available"] == True]
 res = res[res[f"p_{occasion}"] >= 0.5].sort_values(f"p_{occasion}", ascending=False)
-st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
+ 
 if skin_tone != "any":
     res = res[res["suits_skin_undertone"].fillna("").apply(lambda s: skin_tone in s.split("|"))]
 
@@ -140,6 +141,8 @@ if body_type != "any":
     else:  # Curvy / plus size
         ok = (res["has_plus_sizes"] == 1) | (res["is_stretch"] == 1)
     res = res[~res["category"].isin(clothing) | ok]
+
+st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
 
 # Show top 30 as cards (3 per row)
 per_page = 30
