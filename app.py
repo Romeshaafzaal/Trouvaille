@@ -9,6 +9,31 @@ st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+import time
+
+if "booted" not in st.session_state:
+    splash = st.empty()
+    splash.markdown("""
+    <style>
+    .splash {position:fixed; inset:0; z-index:99999; background:#FBF3F1;
+             display:flex; flex-direction:column; align-items:center;
+             justify-content:center; font-family:'VT323',monospace; color:#2D2223;}
+    .splash h1 {font-size:4.5rem; color:#B76E79; margin:0;}
+    .splash p {font-size:1.5rem; margin:6px 0 0 0;}
+    .bar {width:260px; height:18px; border:2px solid #2D2223; margin-top:22px; padding:2px;}
+    .bar div {height:100%; width:0; background:#B76E79; animation:fill 2.5s linear forwards;}
+    @keyframes fill {to {width:100%;}}
+    </style>
+    <div class="splash">
+        <h1>Trouvaille</h1>
+        <p>loading your wardrobe...</p>
+        <div class="bar"><div></div></div>
+    </div>
+    """, unsafe_allow_html=True)
+    time.sleep(2.5)
+    splash.empty()
+    st.session_state["booted"] = True
+
 @st.cache_data
 def load():
     return pd.read_csv("app_data/products_app.csv")
