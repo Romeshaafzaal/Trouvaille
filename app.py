@@ -170,6 +170,12 @@ st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
 # Show top 30 as cards (3 per row)
 per_page = 30
 total_pages = max(1, -(-len(res) // per_page))  # round up
+# Reset to page 1 when any filter changes
+filters_key = (occasion_text, min_text, max_text, gender, category,
+               color, size, skin_tone, body_type, in_stock)
+if st.session_state.get("filters_key") != filters_key:
+    st.session_state["filters_key"] = filters_key
+    st.session_state["page"] = 1
 page = min(st.session_state.get("page", 1), total_pages)
 st.session_state["page"] = page
 start = (page - 1) * per_page
