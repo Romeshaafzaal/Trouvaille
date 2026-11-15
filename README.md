@@ -148,8 +148,9 @@ from the trained MLP via `python src/prepare_app_data.py`, so the app does not n
 - Occasion labels come from keyword rules.
 - Not built yet: LLM query parsing, ratings re-ranking, outfit builder, Vibe Check Engine (future work).
 
-![Trouvaille results page](assets/main.png)
-![alt text](image.png)
+#Trouvaille results page
+<img width="924" height="446" alt="image" src="https://github.com/user-attachments/assets/3d037198-d623-461d-866f-18e399a1ccef" />
+
 
 ## Team
 - Romesha Afzaal (24L-3001)
