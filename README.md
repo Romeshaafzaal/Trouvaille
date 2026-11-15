@@ -142,14 +142,14 @@ from the trained MLP via `python src/prepare_app_data.py`, so the app does not n
 - Learned: the occasion classifier (PyTorch MLP) and the semantic matching of the typed occasion.
 - Rule-based: skin undertone matching (color-analysis lookup), body type (fit keywords) and all other filters.
 
-### Live demo
-(your Streamlit Cloud link)
-
 ### Limitations
 - The size filter shows products that offer a size, not whether that size is in stock.
 - Skin undertone and body type are heuristic filters, not learned models.
 - Occasion labels come from keyword rules.
 - Not built yet: LLM query parsing, ratings re-ranking, outfit builder, Vibe Check Engine (future work).
+
+![Trouvaille results page](assets/main.png)
+![alt text](image.png)
 
 ## Team
 - Romesha Afzaal (24L-3001)
