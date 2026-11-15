@@ -116,6 +116,36 @@ python src/contrib_table.py     # contribution table from git history
 
 Results: macro F1 0.928 and AUC-ROC 0.980 on the test set (baseline validation F1 0.878). Report: `report/Deliverable2_Report.pdf`.
 
+## Deliverable 3: Application (Track A)
+Streamlit app in `app.py`, styled by `style.css`.
+
+### Run the app
+```bash
+pip install -r requirements.txt
+python -m streamlit run app.py
+```
+The app reads `app_data/products_app.csv`, which is committed and holds each product's occasion scores. The scores come
+from the trained MLP via `python src/prepare_app_data.py`, so the app does not need the raw data or the weights file to run.
+
+### Features
+- Free-text occasion (matched to wedding, office, presentation, concert or casual with sentence embeddings)
+- Budget range with input validation
+- Filters: gender, type, color, size, skin undertone, body type, in stock
+- Results ranked by the model's occasion score, with pagination
+
+### What is learned and what is rule-based
+- Learned: the occasion classifier (PyTorch MLP) and the semantic matching of the typed occasion.
+- Rule-based: skin undertone matching (color-analysis lookup), body type (fit keywords) and all other filters.
+
+### Live demo
+(your Streamlit Cloud link)
+
+### Limitations
+- The size filter shows products that offer a size, not whether that size is in stock.
+- Skin undertone and body type are heuristic filters, not learned models.
+- Occasion labels come from keyword rules.
+- Not built yet: LLM query parsing, ratings re-ranking, outfit builder, Vibe Check Engine (future work).
+
 ## Team
 - Romesha Afzaal (24L-3001)
 - Aliza Nadeem (24L-3024)
