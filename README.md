@@ -57,12 +57,17 @@ Prices are assumed to be in PKR.
 
 ## Repository structure
 ```
-data_scripts/   all Phase 2 code
-report/         LaTeX source (main.tex, phase1.tex, phase2.tex) and the compiled PDF
-figures/        EDA charts (generated)
+app.py          Streamlit app (Deliverable 3)
+style.css       app styling
+app_data/       products_app.csv: products with precomputed occasion scores (committed, used by the app)
+assets/         logo and images
+src/            Deliverable 2 code: split, baseline, MLP, evaluation, error analysis, prediction, app data prep
+data_scripts/   all Phase 2 code (scrape, clean, features, EDA)
+report/         LaTeX source and compiled PDFs
+figures/        EDA and model charts (generated)
 data/           raw and processed datasets (generated, not committed); only
                 raw/scrape_log.txt and processed/cleaning_report.txt are kept as evidence
-models/         saved scalers/encoders (generated, not committed)
+models/         saved scalers/encoders and model weights (generated, not committed)
 ```
 
 ## Data summary
