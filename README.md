@@ -1,10 +1,9 @@
 # Trouvaille
 
-AI-powered shopping web app that builds complete outfits from natural language queries
-(e.g. "a black outfit under Rs. 15,000 for a concert"). An LLM extracts budget, color,
-occasion and size; sentence embeddings match products from a cleaned, scraped dataset; an
-inclusive re-ranker (skin tone, body type, ratings) and an outfit builder assemble a look
-within budget; a Vibe Check Engine verifies it fits the event type.
+AI-powered shopping web app that finds outfits from Pakistani stores by occasion, budget and personal filters.
+A PyTorch classifier trained on sentence embeddings predicts which occasions each product suits. A free-text occasion
+box is matched to the closest occasion with the same embeddings, and results are filtered by budget, color, size,
+skin undertone and body type.
 
 ## Deliverable 1
 - **Phase 1:** problem definition (see `report/`)
