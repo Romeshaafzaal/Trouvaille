@@ -79,7 +79,14 @@ size_options = [s for s in size_order if s in available_sizes]
 
 # All filters in one row
 c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(9, gap="small")
-occasion_text = c1.text_input("Occasion", value="casual")
+occasion_text = c1.selectbox(
+    "Occasion",
+    ["wedding", "office", "presentation", "concert", "casual"],
+    index=4,
+    accept_new_options=True,
+)
+if not occasion_text:
+    occasion_text = "casual"
 min_text = c2.text_input("Min (Rs.)", value="0")
 max_text = c3.text_input("Max (Rs.)", value="15000")
 gender = c4.selectbox("For", ["any", "women", "men"])
