@@ -279,3 +279,23 @@ with st.expander("📊 Community feedback"):
         left.dataframe(feedback.top_products(5, best=True), hide_index=True)
         right.markdown("**Least liked**")
         right.dataframe(feedback.top_products(5, best=False), hide_index=True)
+
+
+# Saved outfits (sidebar)
+favs = st.session_state.get("favorites", {})
+with st.sidebar:
+    st.header(f"❤️ Saved ({len(favs)})")
+    if not favs:
+        st.caption("Tap 🤍 Save on an outfit to keep it here.")
+    for i, (url, f) in enumerate(list(favs.items())):
+        if isinstance(f.get("image_url"), str):
+            st.image(f["image_url"])
+        st.markdown(f"**{f['title']}**")
+        st.write(f"{f['brand']} · Rs. {f['price']:,.0f}")
+        st.link_button("View in store", url)
+        st.button("Remove", key=f"rm_{i}", on_click=_remove_fav, args=(url,))
+        st.divider()
+    if favs:
+        st.download_button("Download list (CSV)",
+                           pd.DataFrame(favs.values()).to_csv(index=False).encode("utf-8"),
+                           "saved_outfits.csv", "text/csv")
