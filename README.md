@@ -138,6 +138,11 @@ from the trained MLP via `python src/prepare_app_data.py`, so the app does not n
 - Filters: gender, type, color, size, skin undertone, body type, in stock
 - Results ranked by the model's occasion score, with pagination
 
+## Feedback 
+Each result card has 👍 / 👎 buttons. Votes are stored locally in `data/feedback.db` (SQLite, not committed).
+- Ranking: products get a small capped boost or penalty from feedback (`feedback.py`, max ±0.2).
+- Insights: the "Community feedback" panel shows approval rate per occasion and the most and least liked products.
+
 ### What is learned and what is rule-based
 - Learned: the occasion classifier (PyTorch MLP) and the semantic matching of the typed occasion.
 - Rule-based: skin undertone matching (color-analysis lookup), body type (fit keywords) and all other filters.

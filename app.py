@@ -1,9 +1,20 @@
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+import feedback
 
 def _flag_scroll():
     st.session_state["scroll_top"] = True
+
+def _vote(url, title, brand, occasion, value):
+    """Save a thumbs up/down and remember it for this session."""
+    feedback.add_feedback(url, title, brand, occasion, value)
+    st.session_state.setdefault("voted", {})[(url, occasion)] = value
+
+@st.cache_data(ttl=120)
+def get_boosts(occasion):
+    """Feedback-based rank adjustments (refreshed every 2 minutes so cards don't jump after a vote)."""
+    return feedback.feedback_boosts(occasion)
 
 st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")  
 with open("style.css") as f:
@@ -170,6 +181,9 @@ if body_type != "any":
     res = res[res["fit"] >= 0.5]
     res["rank"] += 0.4 * res["fit"]
 
+# Community feedback: small boost/penalty from past thumbs up/down
+res["rank"] += res["url"].map(get_boosts(occasion)).fillna(0.0)
+
 res = res.sort_values("rank", ascending=False)
 
 st.subheader(f"{len(res)} matches for {occasion_text} in your budget")
@@ -201,6 +215,14 @@ for i in range(0, len(top), 3):
             st.write(price)
             st.progress(float(r[f"p_{occasion}"]), text=f"{occasion} match: {r[f'p_{occasion}']:.0%}")
             st.link_button("View in store", r["url"])
+            if (r["url"], occasion) in st.session_state.get("voted", {}):
+                st.caption("Thanks for your feedback! 💖")
+            else:
+                up, down = st.columns(2)
+                up.button("👍 Good match", key=f"up_{page}_{r.name}",
+                          on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, 1))
+                down.button("👎 Not for this", key=f"down_{page}_{r.name}",
+                            on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, -1))
 
 # Page selector (bottom): - and + buttons only
 _, prev_col, mid, next_col, _ = st.columns([5, 1, 1.5, 1, 5])
@@ -227,3 +249,18 @@ if st.session_state.pop("scroll_top", False):
     go(); setTimeout(go, 150); setTimeout(go, 400);
     </script>
     """, height=0)
+
+    # Community feedback insights
+with st.expander("📊 Community feedback"):
+    summary = feedback.occasion_summary()
+    if summary.empty:
+        st.info("No feedback yet. Vote on a few outfits above!")
+    else:
+        st.metric("Total votes", int(summary["votes"].sum()))
+        st.caption("Approval rate per occasion (share of 👍 votes)")
+        st.bar_chart(summary.set_index("occasion")["approval"])
+        left, right = st.columns(2)
+        left.markdown("**Most liked**")
+        left.dataframe(feedback.top_products(5, best=True), hide_index=True)
+        right.markdown("**Least liked**")
+        right.dataframe(feedback.top_products(5, best=False), hide_index=True)

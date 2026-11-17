@@ -129,3 +129,22 @@ input, [data-baseweb="select"] > div {
 [data-testid="stNumberInput"] {
     max-width: 130px;
 }
+
+/* smaller feedback buttons so labels fit */
+[data-testid="stColumn"] .stButton button {
+    padding: 0.25rem 0.5rem;
+    letter-spacing: 0;
+    font-size: 1.1rem;
+}
+[data-testid="stColumn"] .stButton button p {
+    white-space: nowrap;
+}
+
+/* uniform product images: same frame, cropped to fit */
+[data-testid="stImage"] img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    height: auto;
+    object-fit: cover;
+    object-position: top;   /* keeps faces and the top of the outfit visible */
+}
