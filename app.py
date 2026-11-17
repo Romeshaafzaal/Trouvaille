@@ -249,3 +249,18 @@ if st.session_state.pop("scroll_top", False):
     go(); setTimeout(go, 150); setTimeout(go, 400);
     </script>
     """, height=0)
+
+    # Community feedback insights
+with st.expander("📊 Community feedback"):
+    summary = feedback.occasion_summary()
+    if summary.empty:
+        st.info("No feedback yet. Vote on a few outfits above!")
+    else:
+        st.metric("Total votes", int(summary["votes"].sum()))
+        st.caption("Approval rate per occasion (share of 👍 votes)")
+        st.bar_chart(summary.set_index("occasion")["approval"])
+        left, right = st.columns(2)
+        left.markdown("**Most liked**")
+        left.dataframe(feedback.top_products(5, best=True), hide_index=True)
+        right.markdown("**Least liked**")
+        right.dataframe(feedback.top_products(5, best=False), hide_index=True)
