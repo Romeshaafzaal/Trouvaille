@@ -143,6 +143,10 @@ Each result card has 👍 / 👎 buttons. Votes are stored locally in `data/feed
 - Ranking: products get a small capped boost or penalty from feedback (`feedback.py`, max ±0.2).
 - Insights: the "Community feedback" panel shows approval rate per occasion and the most and least liked products.
 
+## Saved outfits
+Each result card has a 🤍 Save button. Saved outfits appear in the sidebar with a link back to the store,
+a remove button and a CSV download. The list is kept in the browser session only, so it resets on refresh.
+
 ### What is learned and what is rule-based
 - Learned: the occasion classifier (PyTorch MLP) and the semantic matching of the typed occasion.
 - Rule-based: skin undertone matching (color-analysis lookup), body type (fit keywords) and all other filters.
