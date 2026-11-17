@@ -11,6 +11,11 @@ def _vote(url, title, brand, occasion, value):
     feedback.add_feedback(url, title, brand, occasion, value)
     st.session_state.setdefault("voted", {})[(url, occasion)] = value
 
+@st.cache_data(ttl=120)
+def get_boosts(occasion):
+    """Feedback-based rank adjustments (refreshed every 2 minutes so cards don't jump after a vote)."""
+    return feedback.feedback_boosts(occasion)
+
 st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")  
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -175,6 +180,9 @@ if body_type != "any":
     res.loc[~res["category"].isin(clothing), "fit"] = 1  # non-clothing: neutral
     res = res[res["fit"] >= 0.5]
     res["rank"] += 0.4 * res["fit"]
+
+# Community feedback: small boost/penalty from past thumbs up/down
+res["rank"] += res["url"].map(get_boosts(occasion)).fillna(0.0)
 
 res = res.sort_values("rank", ascending=False)
 
