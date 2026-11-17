@@ -1,9 +1,15 @@
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+import feedback
 
 def _flag_scroll():
     st.session_state["scroll_top"] = True
+
+def _vote(url, title, brand, occasion, value):
+    """Save a thumbs up/down and remember it for this session."""
+    feedback.add_feedback(url, title, brand, occasion, value)
+    st.session_state.setdefault("voted", {})[(url, occasion)] = value
 
 st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")  
 with open("style.css") as f:
@@ -201,6 +207,14 @@ for i in range(0, len(top), 3):
             st.write(price)
             st.progress(float(r[f"p_{occasion}"]), text=f"{occasion} match: {r[f'p_{occasion}']:.0%}")
             st.link_button("View in store", r["url"])
+            if (r["url"], occasion) in st.session_state.get("voted", {}):
+                st.caption("Thanks for your feedback! 💖")
+            else:
+                up, down = st.columns(2)
+                up.button("👍 Good match", key=f"up_{page}_{r.name}",
+                          on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, 1))
+                down.button("👎 Not for this", key=f"down_{page}_{r.name}",
+                            on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, -1))
 
 # Page selector (bottom): - and + buttons only
 _, prev_col, mid, next_col, _ = st.columns([5, 1, 1.5, 1, 5])
