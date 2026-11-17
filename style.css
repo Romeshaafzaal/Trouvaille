@@ -148,3 +148,37 @@ input, [data-baseweb="select"] > div {
     object-fit: cover;
     object-position: top;   /* keeps faces and the top of the outfit visible */
 }
+
+/* card buttons: full width, centered text, aligned to the card edges */
+
+.stLinkButton {
+    display: flex;
+    justify-content: center;
+}
+.stLinkButton a,
+[class*="st-key-up_"] button,
+[class*="st-key-down_"] button {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* save button + sidebar */
+[class*="st-key-fav_"],
+[class*="st-key-rm_"] {
+    width: 100%;
+}
+[class*="st-key-fav_"] button,
+[class*="st-key-rm_"] button {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+[data-testid="stSidebar"] {
+    background-color: var(--blush);
+    border-right: 1px solid #d9cfc6;
+}
