@@ -11,12 +11,25 @@ def _vote(url, title, brand, occasion, value):
     feedback.add_feedback(url, title, brand, occasion, value)
     st.session_state.setdefault("voted", {})[(url, occasion)] = value
 
+FAV_FIELDS = ["url", "title", "brand", "category", "color", "price", "image_url"]
+
+def _toggle_fav(row):
+    """Save or un-save an outfit (kept in this browser session only)."""
+    favs = st.session_state.setdefault("favorites", {})
+    if row["url"] in favs:
+        del favs[row["url"]]
+    else:
+        favs[row["url"]] = {k: row.get(k) for k in FAV_FIELDS}
+
+def _remove_fav(url):
+    st.session_state.get("favorites", {}).pop(url, None)
+
 @st.cache_data(ttl=120)
 def get_boosts(occasion):
     """Feedback-based rank adjustments (refreshed every 2 minutes so cards don't jump after a vote)."""
     return feedback.feedback_boosts(occasion)
 
-st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide")  
+st.set_page_config(page_title="Trouvaille", page_icon="👗", layout="wide", initial_sidebar_state="collapsed")
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -223,6 +236,8 @@ for i in range(0, len(top), 3):
                           on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, 1))
                 down.button("👎 Not for this", key=f"down_{page}_{r.name}",
                             on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, -1))
+            is_saved = r["url"] in st.session_state.get("favorites", {})
+            st.button("❤️ Saved" if is_saved else "🤍 Save", key=f"fav_{page}_{r.name}",on_click=_toggle_fav, args=(r.to_dict(),))
 
 # Page selector (bottom): - and + buttons only
 _, prev_col, mid, next_col, _ = st.columns([5, 1, 1.5, 1, 5])
