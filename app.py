@@ -228,16 +228,20 @@ for i in range(0, len(top), 3):
             st.write(price)
             st.progress(float(r[f"p_{occasion}"]), text=f"{occasion} match: {r[f'p_{occasion}']:.0%}")
             st.link_button("View in store", r["url"])
-            if (r["url"], occasion) in st.session_state.get("voted", {}):
-                st.caption("Thanks for your feedback! 💖")
-            else:
-                up, down = st.columns(2)
-                up.button("👍 Good match", key=f"up_{page}_{r.name}",
-                          on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, 1))
-                down.button("👎 Not for this", key=f"down_{page}_{r.name}",
-                            on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, -1))
+            already_voted = (r["url"], occasion) in st.session_state.get("voted", {})
             is_saved = r["url"] in st.session_state.get("favorites", {})
-            st.button("❤️ Saved" if is_saved else "🤍 Save", key=f"fav_{page}_{r.name}",on_click=_toggle_fav, args=(r.to_dict(),))
+            col_up, col_down, col_fav = st.columns(3)
+            col_up.button("👍", key=f"up_{page}_{r.name}",
+                          help="Good match" if not already_voted else "Thanks for your feedback!",
+                          disabled=already_voted,
+                          on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, 1))
+            col_down.button("👎", key=f"down_{page}_{r.name}",
+                            help="Not for this occasion" if not already_voted else "Thanks for your feedback!",
+                            disabled=already_voted,
+                            on_click=_vote, args=(r["url"], r["title"], r["brand"], occasion, -1))
+            col_fav.button("❤️" if is_saved else "🤍", key=f"fav_{page}_{r.name}",
+                           help="Remove from saved" if is_saved else "Save outfit",
+                           on_click=_toggle_fav, args=(r.to_dict(),))
 
 # Page selector (bottom): - and + buttons only
 _, prev_col, mid, next_col, _ = st.columns([5, 1, 1.5, 1, 5])

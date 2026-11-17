@@ -182,3 +182,53 @@ input, [data-baseweb="select"] > div {
     background-color: var(--blush);
     border-right: 1px solid #d9cfc6;
 }
+
+/* View in store: full card width, centered */
+.stLinkButton { width: 100%; }
+.stLinkButton a {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* emoji row: three equal buttons */
+[class*="st-key-up_"],
+[class*="st-key-down_"],
+[class*="st-key-fav_"] { width: 100%; }
+[class*="st-key-up_"] button,
+[class*="st-key-down_"] button,
+[class*="st-key-fav_"] button {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.3rem 0;
+}
+
+/* action row inside product cards: no dividers, no inset, evenly spaced */
+[data-testid="stColumn"] [data-testid="stHorizontalBlock"] {
+    border-top: none;
+    border-bottom: none;
+    padding: 0;
+    gap: 0.5rem !important;
+}
+[data-testid="stColumn"] [data-testid="stColumn"] {
+    border-right: none;
+    padding: 0;
+}
+
+/* View in store: same full width as the emoji row */
+.stElementContainer:has(.stLinkButton),
+.stLinkButton {
+    width: 100%;
+}
+.stLinkButton a {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
