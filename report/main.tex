@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta}
 
@@ -15,12 +16,23 @@
     \end{figure}}{%
     \textbf{[Missing figure: \detokenize{#1} -- run the pipeline]}\par}}
 
-\title{Trouvaille: AI-Powered Outfit Recommendation\\Deliverable 2 -- Model Architecture \& Evaluation}
-\author{Group Members Romesha Afzaal 24L3001 Aliza Nadeem 24L-3024}
+\title{Trouvaille: AI-Powered Outfit Recommendation\\Deliverable 3 -- Final Deployment \& Technical Report}
+\author{Romesha Afzaal (24L-3001) \and Aliza Nadeem (24L-3024)}
 \date{}
 
 \begin{document}
 \maketitle
+
+\begin{abstract}
+Online outfit shopping in Pakistan is slow and fragmented: shoppers browse many brand sites and
+cannot easily search by occasion, budget, skin undertone or body type. Trouvaille is a web app that
+recommends outfits from eight Pakistani clothing brands. We scraped and cleaned about 25,000 products,
+embedded their text with a pretrained sentence encoder \cite{reimers2019sbert,wang2020minilm}, and trained
+a PyTorch MLP \cite{paszke2019pytorch} to predict which occasions each product suits. On a held-out test set the model reaches
+a macro F1 of 0.928 and an AUC-ROC of 0.980, and a subgroup analysis shows weaker performance on some brands and categories.
+The model is deployed in a Streamlit app with free-text occasion matching and budget, color, size, undertone and body-type filters.
+Occasion labels and the undertone and body-type filters are rule-based heuristics, which we document as limitations.
+\end{abstract}
 
 \input{phase1}
 \input{phase2}
@@ -37,6 +49,10 @@
 
 \input{phase3}
 \input{phase4}
+\input{phase5}
 \input{contributions}
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
