@@ -18,3 +18,11 @@ __pycache__/
 *.toc
 
 data/feedback.db
+
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+report/main.pdf

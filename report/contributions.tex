@@ -1,25 +1,22 @@
 \section{Team Contributions \& Version Control}
-All code was committed with the Git command line. The table below is generated automatically from the repository history by \texttt{src/contrib\_table.py} and maps each commit author to the files (modules) they wrote.
+All code was committed with the Git command line, working on feature branches and merging them into \texttt{main}. The first table is generated automatically from the repository history by \texttt{src/contrib\_table.py} and lists every commit made for Deliverable 3 together with the files it changed. The second table summarises who wrote which module.
 
-\begin{table}[htbp]
-\centering
-\small
+{\small
 \IfFileExists{tables/contributions.tex}{\input{tables/contributions.tex}}{\textbf{[run src/contrib\_table.py]}}
-\caption{Contribution table (Git commits for Deliverable 2).}
-\end{table}
+}
 
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{p{3cm}p{10.5cm}}
 \toprule
-Member & Modules \\
+Member & Deliverable 3 modules \\
 \midrule
-Romesha Afzaal & \texttt{split\_data.py} (70/15/15 split), \texttt{baseline.py} (embeddings + logistic regression), \texttt{mlp.py} (PyTorch MLP and grid search), \texttt{evaluate.py} (test metrics, subgroup bias check) \\
-Aliza Nadeem & \texttt{error\_analysis.py} (per-class metrics, ROC, confusion matrices, worst errors), \texttt{plot\_results.py} (tuning and bias figures/tables), \texttt{predict.py} (interactive inference script), \texttt{report\_utils.py}, \texttt{contrib\_table.py}, and the LaTeX report for Phases 3 and 4 \\
+Romesha Afzaal & \texttt{src/prepare\_app\_data.py} (precomputes occasion scores), \texttt{app.py} (budget validation, occasion matching, filters, undertone and body-type scoring, pagination, loading screen), \texttt{style.css} (interface styling), \texttt{requirements.txt}, application README \\
+Aliza Nadeem & \texttt{feedback.py} (SQLite feedback storage and ranking adjustment), thumbs-up/down buttons and the community feedback panel, saved outfits sidebar with CSV export, compact action row and card styling in \texttt{app.py} and \texttt{style.css}, README sections for both features \\
 \bottomrule
 \end{tabular}
-\caption{Module ownership.}
+\caption{Module ownership for Deliverable 3. Deliverable 2 ownership is in the Deliverable 2 report.}
 \end{table}
 
 \paragraph{Model weights.} Trained weights (\texttt{mlp\_occasion.pt}) are hosted on Google Drive; the link is in \texttt{README.md}. Code: \url{https://github.com/Romeshaafzaal/Trouvaille}.
